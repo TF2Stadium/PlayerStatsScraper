@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -77,6 +78,27 @@ func (p *PlayerInfo) GetLogoffTime() time.Time {
 	return time.Unix(int64(p.Lastlogoff), 0)
 }
 
+func tryParsingString(arg interface{}) string {
+	res, ok := arg.(string)
+	if !ok {
+		return ""
+	}
+	return res
+}
+
+func tryParsingNumber(arg interface{}) (int, error) {
+	json, ok := arg.(json.Number)
+	if !ok {
+		return 0, errors.New("Not a json number")
+	}
+
+	res, err := json.Int64()
+	if err != nil {
+		return 0, err
+	}
+	return int(res), nil
+}
+
 // parse player json
 func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 	p.Steamid = elem["steamid"].(string)
@@ -106,7 +128,7 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 	p.Communityvisibilitystate = playerV
 
 	// Logoff
-	playerL, lErr := strconv.Atoi(elem["lastlogoff"].(json.Number).String())
+	playerL, lErr := tryParsingNumber(elem["lastlogoff"])
 	if lErr != nil {
 		return lErr
 	}
@@ -114,7 +136,7 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 	p.Lastlogoff = playerL
 
 	// if the account has a steam community profile set then this should be 1
-	profileState, stErr := strconv.Atoi(elem["profilestate"].(json.Number).String())
+	profileState, stErr := tryParsingNumber(elem["profilestate"])
 	if stErr != nil {
 		return stErr
 	}
@@ -124,10 +146,10 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 	// variables that are only available when
 	// the profile visibility is set to public
 	if vState == "public" {
-		p.Realname = elem["realname"].(string)
+		p.Realname = tryParsingString(elem["realname"])
 
 		// user is online, offline...
-		playerState, pstErr := strconv.Atoi(elem["personastate"].(json.Number).String())
+		playerState, pstErr := tryParsingNumber(elem["personastate"])
 		if pstErr != nil {
 			return pstErr
 		}
@@ -135,7 +157,7 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 		p.Personastate = PersonaState(playerState)
 
 		// timecreated
-		playerTC, tcErr := strconv.Atoi(elem["timecreated"].(json.Number).String())
+		playerTC, tcErr := tryParsingNumber(elem["timecreated"])
 		if tcErr != nil {
 			return tcErr
 		}
@@ -143,12 +165,12 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 		p.Timecreated = playerTC
 
 		// location
-		p.Loccountrycode = elem["loccountrycode"].(string)
-		p.Locstatecode = elem["locstatecode"].(string)
+		p.Loccountrycode = tryParsingString(elem["loccountrycode"])
+		p.Locstatecode = tryParsingString(elem["locstatecode"])
 
-		cityId, cErr := strconv.Atoi(elem["loccityid"].(json.Number).String())
+		cityId, cErr := tryParsingNumber(elem["loccityid"])
 		if cErr != nil {
-			return cErr
+			cityId = 0
 		}
 
 		p.Loccityid = cityId

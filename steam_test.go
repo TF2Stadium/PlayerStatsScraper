@@ -1,12 +1,14 @@
 package scraper
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-const steamKey = "your steam dev key"
+var steamKey = os.Getenv("STEAM_API_KEY")
+
 const robinAvatar = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/f1/f1dd60a188883caf82d0cbfccfe6aba0af1732d4.jpg"
 const robinPUrl = "http://steamcommunity.com/id/robinwalker/"
 
