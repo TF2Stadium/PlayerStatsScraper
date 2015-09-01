@@ -1,0 +1,8 @@
+notify:
+  slack:
+    webhook_url: $$SLACK_WEBHOOK
+    username: 'drone'
+    channel: '#githubbackendreports'
+    on_started: false
+    on_success: true
+    on_failure: true
