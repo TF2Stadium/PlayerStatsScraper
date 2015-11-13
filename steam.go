@@ -128,11 +128,7 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 	p.Communityvisibilitystate = playerV
 
 	// Logoff
-	playerL, lErr := tryParsingNumber(elem["lastlogoff"])
-	if lErr != nil {
-		return lErr
-	}
-
+	playerL, _ := tryParsingNumber(elem["lastlogoff"])
 	p.Lastlogoff = playerL
 
 	// if the account has a steam community profile set then this should be 1
