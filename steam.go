@@ -189,6 +189,8 @@ func (p *PlayerInfo) Parse(elem map[string]interface{}) error {
 
 var steamApiKey string
 
+var ErrNoGamesOwned = errors.New("No Steam game in player's profile.")
+
 func SetSteamApiKey(key string) {
 	steamApiKey = key
 }
@@ -196,6 +198,9 @@ func SetSteamApiKey(key string) {
 func GetTF2Hours(steamid string) (int, error) {
 	games, err := GetSteamGamesOwned(steamid)
 	if err != nil {
+		if err == ErrNoGamesOwned {
+			return 0, nil
+		}
 		return 0, err
 	}
 
@@ -219,7 +224,7 @@ func GetTF2HoursFromGamesOwned(res *map[string]string) int {
 
 func GetSteamGamesOwned(steamid string) (*map[string]string, error) {
 	url := "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" +
-		steamApiKey + "&steamid=" + steamid + "&include_played_free_games=1&format=json"
+		steamApiKey + "&steamid=" + steamid + "&include_played_free_games=true&format=json1"
 
 	response, err := getJsonFromUrl(url)
 
@@ -230,8 +235,9 @@ func GetSteamGamesOwned(steamid string) (*map[string]string, error) {
 	res := make(map[string]string)
 
 	ps, err := response.Get("response").Get("games").Array()
-	if err != nil {
-		return nil, err
+	count, _ := response.Get("response").Get("game_count").Int()
+	if err != nil && count == 0 {
+		return nil, ErrNoGamesOwned
 	}
 
 	for _, _elem := range ps {
