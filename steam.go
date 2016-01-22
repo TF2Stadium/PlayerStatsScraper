@@ -203,7 +203,6 @@ func GetTF2Hours(steamid string) (int, error) {
 		}
 		return 0, err
 	}
-
 	return GetTF2HoursFromGamesOwned(games), nil
 }
 
@@ -224,7 +223,7 @@ func GetTF2HoursFromGamesOwned(res *map[string]string) int {
 
 func GetSteamGamesOwned(steamid string) (*map[string]string, error) {
 	url := "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" +
-		steamApiKey + "&steamid=" + steamid + "&include_played_free_games=true&format=json1"
+		steamApiKey + "&steamid=" + steamid + "&include_played_free_games=1&format=json1"
 
 	response, err := getJsonFromUrl(url)
 
