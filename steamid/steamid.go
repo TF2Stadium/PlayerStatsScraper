@@ -30,7 +30,7 @@ func CommIdToSteamId(commid string) (string, error) {
 	universe := (number >> 56)
 
 	if accountType != 1 {
-		return "", errors.New("Non-user ids are not supported")
+		return "", errors.New("steamid: non-user ids are not supported")
 	}
 
 	return fmt.Sprintf("[U:%v:%v:%v]", universe, accountId, instance), nil
@@ -47,7 +47,7 @@ func CommIdToLegacySteamId(commid string) (string, error) {
 	universe := (number >> 56)
 
 	if universe != 1 {
-		return "", errors.New("Non-public legacy ids are not supported")
+		return "", errors.New("steamid: non-public legacy ids are not supported")
 	}
 
 	return fmt.Sprintf("STEAM_0:%v:%v", accountId&1, accountId>>1), nil
@@ -68,7 +68,7 @@ func SteamIdToCommId(steamid string) (string, error) {
 		return newSteamIdToCommId(steamid)
 	}
 
-	return "", errors.New("Steam ID didn't match legacy or modern format")
+	return "", errors.New("steamid: steam ID didn't match legacy or modern format")
 }
 
 func legacySteamIdToCommId(steamid string) (string, error) {
@@ -76,7 +76,7 @@ func legacySteamIdToCommId(steamid string) (string, error) {
 	params := strings.Split(steamid, ":")
 
 	if params[0] != "0" {
-		return "", errors.New("Non-public legacy ids are not supported")
+		return "", errors.New("steamid: non-public legacy ids are not supported")
 	}
 
 	Y, _ := strconv.ParseInt(params[1], 10, 64)
@@ -93,7 +93,7 @@ func newSteamIdToCommId(steamid string) (string, error) {
 	params := strings.Split(steamid, ":")
 
 	if params[0] != "U" {
-		return "", errors.New("Non-user ids are not supported")
+		return "", errors.New("steamid: non-user ids are not supported")
 	}
 
 	universe, _ := strconv.ParseInt(params[1], 10, 64)
