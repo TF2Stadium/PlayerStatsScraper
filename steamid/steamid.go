@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+// Compare two SteamIDs
+func SteamIDsEqual(s1, s2 string) bool {
+	c1, _ := SteamIdToCommId(s1)
+	c2, _ := SteamIdToCommId(s2)
+
+	return c1 == c2
+}
+
 // ((Universe << 56) | (Account Type << 52) | (Instance << 32) | Account ID)
 
 func CommIdToSteamId(commid string) (string, error) {
@@ -45,9 +53,14 @@ func CommIdToLegacySteamId(commid string) (string, error) {
 	return fmt.Sprintf("STEAM_0:%v:%v", accountId&1, accountId>>1), nil
 }
 
+var (
+	reLegacy = regexp.MustCompile("STEAM_[0-9]+:[01]:[0-9]+")
+	reNew    = regexp.MustCompile("\\[?[A-Z]+:[0-9]+:[0-9]+[:[0-9]+]?\\]?")
+)
+
 func SteamIdToCommId(steamid string) (string, error) {
-	matchedLegacy, _ := regexp.MatchString("STEAM_[0-9]+:[01]:[0-9]+", steamid)
-	matchedNew, _ := regexp.MatchString("\\[?[A-Z]+:[0-9]+:[0-9]+[:[0-9]+]?\\]?", steamid)
+	matchedLegacy := reLegacy.MatchString(steamid)
+	matchedNew := reNew.MatchString(steamid)
 
 	if matchedLegacy {
 		return legacySteamIdToCommId(steamid)
